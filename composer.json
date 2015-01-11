@@ -1,0 +1,14 @@
+{
+	"name"        : "bellows/githubv3",
+	"description" : "Clean github api client",
+	"license"     : "MIT",
+	"require"     : {
+		"bellows/request": "dev-dev"
+	},
+	"repositories": [
+		{
+			"type": "vcs",
+			"url" : "git@github.com:bellows-io/request.git"
+		}
+	]
+}
