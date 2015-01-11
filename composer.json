@@ -1,5 +1,5 @@
 {
-	"name"        : "bellows/request",
+	"name"        : "bellows-io/request",
 	"description" : "Clean request object",
 	"license"     : "MIT",
 	"repositories": []
