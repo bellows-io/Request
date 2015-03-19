@@ -8,7 +8,7 @@ use Request\Cookie;
 
 class Request extends AbstractRequest {
 
-	const USER_AGENT_STRING = "BitMoth cURL";
+	const USER_AGENT_STRING = "Bellows cURL";
 
 	protected $opts = array();
 	protected $cookieVals = array();
