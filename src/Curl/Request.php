@@ -11,14 +11,9 @@ class Request extends AbstractRequest {
 	const USER_AGENT_STRING = "Bellows cURL";
 
 	protected $opts = array();
-	protected $cookieVals = array();
 
 	public function setOpt($curlOpt, $value) {
 		$this->opts[$curlOpt] = $value;
-	}
-
-	public function cookie($key, $value) {
-		$this->cookieVals[$key] = $value;
 	}
 
 	protected function httpHeaderIfNotSet($key, $value) {
@@ -58,9 +53,8 @@ class Request extends AbstractRequest {
 		}
 
 		$cookies = array();
-		foreach ($this->cookieVals as $key => $value) {
-			$string = sprintf("%s=%s", $key, $value);
-			$cookies[] = $string;
+		foreach ($this->cookies as $cookie) {
+			$cookies[] = $cookie->getValue();
 		}
 		if ($cookies) {
 			$this->setOpt(CURLOPT_COOKIE, join(';',$cookies));

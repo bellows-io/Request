@@ -9,6 +9,7 @@ abstract class AbstractRequest {
 	protected $formData         = null;
 	protected $formDataEncoding = null;
 	protected $timeout          = null;
+	protected $cookies          = array();
 	protected $method           = 'GET';
 	protected $httpHeaders      = array();
 
@@ -23,6 +24,16 @@ abstract class AbstractRequest {
 	public function setFormData($formData, $encoding = null) {
 		$this->formData = $formData;
 		$this->formDataEncoding = $encoding;
+	}
+
+	public function addCookie(Cookie $cookie) {
+		$this->cookies[] = $cookie;
+	}
+
+	public function addCookies(array $cookies) {
+		foreach ($cookies as $cookie) {
+			$this->addCookie($cookie);
+		}
 	}
 
 	public function setTimeout($seconds) {
