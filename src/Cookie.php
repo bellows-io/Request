@@ -40,7 +40,7 @@ class Cookie {
 		$secure   = false;
 
 		foreach ($tokens as $i => $token) {
-			$tokenVals = array_map('trim', split('=', $token));
+			$tokenVals = array_map('trim', explode('=', $token));
 			$count = count($tokenVals);
 			if ($count == 2) {
 				list($k, $v) = $tokenVals;

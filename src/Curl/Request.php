@@ -112,7 +112,7 @@ class Request extends AbstractRequest {
 				} else if (preg_match('/Content\-Type: (.+);?/', $headerLine, $matches)) {
 					$type = $matches[1];
 				}
-				list($key, $value) = split(':', $headerLine);
+				list($key, $value) = explode(':', $headerLine);
 				$headers[trim($key)] = trim($value);
 			}
 		}
