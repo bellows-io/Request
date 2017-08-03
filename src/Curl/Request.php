@@ -36,12 +36,14 @@ class Request extends AbstractRequest {
 	public function exec() {
 		$url = $this->buildUrl();
 
+		$opts = $this->opts;
+
 		$handle = curl_init($url);
 
-		$this->setOpt(CURLOPT_USERAGENT, self::USER_AGENT_STRING);
-		$this->setOpt(CURLOPT_HEADER, true);
-		$this->setOpt(CURLOPT_BINARYTRANSFER, true);
-		$this->setOpt(CURLOPT_RETURNTRANSFER, true);
+		$opts[ CURLOPT_USERAGENT ] = self::USER_AGENT_STRING;
+		$opts[ CURLOPT_HEADER ] = true;
+		$opts[ CURLOPT_BINARYTRANSFER ] = true;
+		$opts[ CURLOPT_RETURNTRANSFER ] = true;
 
 		if (! is_null($this->formData)) {
 			if (is_null($this->formDataEncoding)) {
@@ -52,9 +54,10 @@ class Request extends AbstractRequest {
 				$this->httpHeaderIfNotSet('Accept', 'application/json');
 				$this->httpHeaderIfNotSet('Content-type', 'application/json; charset=utf-8');
 			}
-			$this->ifNotSet(CURLOPT_CUSTOMREQUEST, "POST");
-			$this->setOpt(CURLOPT_POSTFIELDS, $payload);
-
+			if ( ! isset( $opts[ CURLOPT_CUSTOMREQUEST ])) {
+				$opts[ CURLOPT_CUSTOMREQUEST ] = "POST";
+			}
+			$opts[ CURLOPT_POSTFIELDS ] = $payload;
 		}
 
 		$cookies = array();
@@ -63,25 +66,27 @@ class Request extends AbstractRequest {
 			$cookies[] = $string;
 		}
 		if ($cookies) {
-			$this->setOpt(CURLOPT_COOKIE, join(';',$cookies));
+			$opts[ CURLOPT_COOKIE ] = join(';',$cookies);
 		}
 		if ($this->timeout) {
-			$this->setOpt(CURLOPT_TIMEOUT, $this->timeout);
+			$opts[ CURLOPT_TIMEOUT ] = $this->timeout;
 		}
-		$this->ifNotSet(CURLOPT_HTTPHEADER, array());
+		if ( ! isset( $opts[ CURLOPT_HTTPHEADER ])) {
+			$opts[ CURLOPT_HTTPHEADER ] = [];
+		}
 		foreach ($this->httpHeaders as $key => $value) {
 			if (is_null($value)) {
-				$this->opts[CURLOPT_HTTPHEADER][] = $key;
+				$opts[CURLOPT_HTTPHEADER][] = $key;
 			} else {
-				$this->opts[CURLOPT_HTTPHEADER][] = sprintf("%s: %s", $key, $value);
+				$opts[CURLOPT_HTTPHEADER][] = sprintf("%s: %s", $key, $value);
 			}
 		}
 
 		if ($this->method != 'GET') {
-			$this->setOpt(CURLOPT_CUSTOMREQUEST, $this->method);
+			$opts[ CURLOPT_CUSTOMREQUEST ] = $this->method;
 		}
 
-		foreach ($this->opts as $opt => $value) {
+		foreach ($opts as $opt => $value) {
 			curl_setopt($handle, $opt, $value);
 		}
 
@@ -112,9 +117,15 @@ class Request extends AbstractRequest {
 				} else if (preg_match('/Content\-Type: (.+);?/', $headerLine, $matches)) {
 					$type = $matches[1];
 				}
-				list($key, $value) = split(':', $headerLine);
-				$headers[trim($key)] = trim($value);
+				$parts = explode(':', $headerLine);
+				$key = array_shift( $parts );
+				$headers[trim($key)] = trim(implode(':', $parts));
 			}
+		}
+
+		if ( $status && $status[ 0 ] == '3' && $this->followRedirects && !empty($headers['Location'])) {
+			$this->setUrl( $headers['Location'] );
+			return $this->exec();
 		}
 
 		if ($type == 'application/json') {
@@ -123,6 +134,7 @@ class Request extends AbstractRequest {
 			$body = $rawBody;
 		}
 
+		$this->opts = $opts;
 		return new Response($rawBody, $body, $headers, $status, $type, $cookies);
 	}
 

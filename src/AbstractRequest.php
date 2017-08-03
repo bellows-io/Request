@@ -11,6 +11,7 @@ abstract class AbstractRequest {
 	protected $timeout          = null;
 	protected $method           = 'GET';
 	protected $httpHeaders      = array();
+	protected $followRedirects  = true;
 
 	public function setUrl($url) {
 		$this->url = $url;
@@ -18,6 +19,10 @@ abstract class AbstractRequest {
 
 	public function setQuery($query) {
 		$this->query = $query;
+	}
+
+	public function followRedirects( $value = true ) {
+		$this->followRedirects = $value;
 	}
 
 	public function setFormData($formData, $encoding = null) {
